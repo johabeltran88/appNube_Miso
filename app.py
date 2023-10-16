@@ -6,6 +6,7 @@ from flask_restful import Api
 from controllers.controller1 import bpController1
 from controllers.controller2 import bpController2
 from controllers.LoginController import VistaSignup 
+from controllers.LoginController import VistaLogIn
 
 from models import db
 
@@ -29,6 +30,7 @@ app.register_blueprint(bpController2)
 
 api = Api(app)
 api.add_resource(VistaSignup, '/api/auth/signup')
+api.add_resource(VistaLogIn, '/api/auth/login')
 
 jwt = JWTManager(app)
 
