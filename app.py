@@ -1,12 +1,8 @@
-from flask import Flask
-from controllers.controller1 import bpController1
-from controllers.controller2 import bpController2
+from commons.commons import Commons
+from controllers.task_controller import bluePrintTaskController
 
-app = Flask(__name__)
-
-# Registrar los controladores en la aplicación
-app.register_blueprint(bpController1)
-app.register_blueprint(bpController2)
+app = Commons.init_db()
+app.register_blueprint(bluePrintTaskController)
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000)
