@@ -9,6 +9,8 @@ from controllers.LoginController import VistaSignup
 from controllers.LoginController import VistaLogIn
 
 from models import db
+from commons.commons import Commons
+from controllers.task_controller import bluePrintTaskController
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///dbapp.sqlite'
@@ -33,6 +35,8 @@ api.add_resource(VistaSignup, '/api/auth/signup')
 api.add_resource(VistaLogIn, '/api/auth/login')
 
 jwt = JWTManager(app)
+app = Commons.init_db()
+app.register_blueprint(bluePrintTaskController)
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000)
