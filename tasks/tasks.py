@@ -1,3 +1,5 @@
+import os
+
 from celery import Celery
 from celery.utils.log import get_task_logger
 from moviepy.video.io.VideoFileClip import VideoFileClip
@@ -6,9 +8,11 @@ from commons.utils import Utils
 from models import Task, TaskSchema, db
 from commons.commons import Commons
 
+rabbit_host = os.environ.get("RABBIT_HOST")
+
 celery = Celery(
     'tasks',
-    broker='pyamqp://guest@rabbit//',
+    broker='pyamqp://guest@{}//'.format('localhost' if rabbit_host is None else rabbit_host),
     backend='db+sqlite:///db.sqlite',
 )
 

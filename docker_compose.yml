@@ -2,6 +2,8 @@ version: '3'
 services:
   file-converter-beat:
     build: ./../appNube_Miso
+    environment:
+      - RABBIT_HOST=rabbit
     command:
       - celery
       - -A
@@ -15,6 +17,8 @@ services:
       - file-converter-service
   file-converter-worker:
     build: ./../appNube_Miso
+    environment:
+      - RABBIT_HOST=rabbit
     command:
       - celery
       - -A
