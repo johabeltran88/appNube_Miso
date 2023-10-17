@@ -24,5 +24,15 @@ class VistaTasks(Resource):
             return task_schema.dump(tasks, many=True), 200
         except:
             return {"mensaje": "El usuario no existe"}, 422
+    @jwt_required()
+    def delete(slef, id_task):
+        task = Task.query.filter(Task.id == id_task).first()
+        if task is None:
+            return {"mensaje": "La tarea no existe"}, 422
+        else:
+            db.session.delete(task)
+            db.session.commit()
+            return {"mensaje": "Tarea eliminada exitosamente"}, 200
+        #Hace falta aniadir bloque para eliminar archivos asociados a la tarea.
             
         
