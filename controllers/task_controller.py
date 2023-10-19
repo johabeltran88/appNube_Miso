@@ -1,8 +1,9 @@
-from flask import Blueprint, request
-
+from flask import Blueprint, request, jsonify, url_for, send_from_directory
+from datetime import datetime
 from commons.utils import Utils
 from commons.video_format_enum import VideoFormatEnum
 from models import db, Task, TaskSchema
+import os
 
 bluePrintTaskController = Blueprint('bluePrintTaskController', __name__)
 
@@ -67,3 +68,25 @@ def validate_extension_equals(file_extension, new_format):
     if file_extension == new_format:
         return "El archivo seleccionado tiene el nuevo formato ingresado, no es necesario hacer la conversión."
     return None
+
+
+@bluePrintTaskController.route(CONTROLLER_ROUTE + '/<int:id>', methods=['GET'])
+def get_task_by_id(id):
+    task = Task.query.filter(Task.id == id).first()
+    if task is None:
+        return {"mensaje": "No existe una tarea con ese id"}, 422
+    else:
+        resultado = taskSchema.dump(task)
+        resultado['original_file'] = url_for('bluePrintTaskController.publish_file', file_name= str(task.id) + "." + task.fileName.split(".")[1])
+        if(task.status == 'processed'):            
+            resultado['converted_file'] = url_for('bluePrintTaskController.publish_file', file_name= str(task.id) + "." + task.newFormat)
+        else:
+            resultado['converted_file'] = ''
+        return jsonify(resultado)
+    
+@bluePrintTaskController.route(CONTROLLER_ROUTE + '/files/<file_name>')
+def publish_file(file_name):
+    basedir = os.path.realpath(os.path.dirname(os.getcwd()))
+    data_dir = os.path.join(basedir, 'APPNUBE_MISO', 'files')
+    print(data_dir)
+    return send_from_directory(data_dir, file_name, as_attachment=True,cache_timeout=0)    

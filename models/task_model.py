@@ -1,4 +1,5 @@
 from datetime import datetime
+from marshmallow import fields
 from marshmallow_sqlalchemy import SQLAlchemyAutoSchema
 from flask_sqlalchemy import SQLAlchemy
 
@@ -17,3 +18,4 @@ class TaskSchema(SQLAlchemyAutoSchema):
     class Meta:
         model = Task
         load_instance = True
+    timeStamp = fields.DateTime(format='%Y-%m-%d %H:%M:%S')    
