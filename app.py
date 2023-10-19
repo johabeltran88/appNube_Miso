@@ -5,8 +5,7 @@ from flask_restful import Api
 
 from controllers.controller1 import bpController1
 from controllers.controller2 import bpController2
-from controllers.LoginController import VistaSignup 
-from controllers.LoginController import VistaLogIn
+from controllers.LoginController import bluePrintLoginController
 
 from models import db
 
@@ -25,12 +24,11 @@ db.create_all()
 cors = CORS(app)
 
 # Registrar los controladores en la aplicación
+app.register_blueprint(bluePrintLoginController)
 app.register_blueprint(bpController1)
 app.register_blueprint(bpController2)
 
 api = Api(app)
-api.add_resource(VistaSignup, '/api/auth/signup')
-api.add_resource(VistaLogIn, '/api/auth/login')
 
 jwt = JWTManager(app)
 
