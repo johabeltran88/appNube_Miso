@@ -1,5 +1,49 @@
 version: '3'
 services:
+  file-converter-beat:
+    build: ./../appNube_Miso
+    environment:
+      - RABBIT_HOST=rabbit
+    command:
+      - celery
+      - -A
+      - tasks.tasks
+      - beat
+      - --loglevel=info
+    volumes:
+      - ./db:/app/db
+      - ./files:/app/files
+    depends_on:
+      - file-converter-service
+  file-converter-worker:
+    build: ./../appNube_Miso
+    environment:
+      - RABBIT_HOST=rabbit
+    command:
+      - celery
+      - -A
+      - tasks.tasks
+      - worker
+      - --loglevel=info
+      - -P
+      - threads
+    volumes:
+      - ./db:/app/db
+      - ./files:/app/files
+    depends_on:
+      - file-converter-service
+  file-converter-service:
+    build: ./../appNube_Miso
+    command:
+      - python
+      - app.py
+    volumes:
+      - ./db:/app/db
+      - ./files:/app/files
+    ports:
+      - "5000:5000"
+    depends_on:
+      - rabbit
   rabbit:
     image: rabbitmq:3.7.5-management
     ports:

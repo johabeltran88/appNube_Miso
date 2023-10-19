@@ -1,3 +1,5 @@
+import os
+
 from celery import Celery
 from celery.utils.log import get_task_logger
 from moviepy.video.io.VideoFileClip import VideoFileClip
@@ -6,9 +8,11 @@ from commons.utils import Utils
 from models import Task, TaskSchema, db
 from commons.commons import Commons
 
+rabbit_host = os.environ.get("RABBIT_HOST")
+
 celery = Celery(
     'tasks',
-    broker='pyamqp://guest@localhost//',
+    broker='pyamqp://guest@{}//'.format('localhost' if rabbit_host is None else rabbit_host),
     backend='db+sqlite:///db.sqlite',
 )
 
@@ -17,74 +21,23 @@ logger = get_task_logger(__name__)
 taskSchema = TaskSchema()
 
 CODECS = {
-    "WEBM MP4": {
+    "MP4": {
         "codec": "libx264"
     },
-    "AVI MP4": {
-        "codec": "libx264"
-    },
-    "MPEG MP4": {
-        "codec": "libx264"
-    },
-    "WMV MP4": {
-        "codec": "libx264"
-    },
-    "MP4 WEBM": {
+    "WEBM": {
         "codec": "libvpx",
         "audio_codec": "libvorbis"
     },
-    "AVI WEBM": {
-        "codec": "libvpx",
-        "audio_codec": "libvorbis"
-    },
-    "MPEG WEBM": {
-        "codec": "libvpx",
-        "audio_codec": "libvorbis"
-    },
-    "WMV WEBM": {
-        "codec": "libvpx",
-        "audio_codec": "libvorbis"
-    },
-    "MP4 AVI": {
+    "AVI": {
         "codec": "rawvideo"
     },
-    "WEBM AVI": {
-        "codec": "rawvideo"
-    },
-    "MPEG AVI": {
-        "codec": "rawvideo"
-    },
-    "WMV AVI": {
-        "codec": "rawvideo"
-    },
-    "MP4 MPEG": {
+    "MPEG": {
         "codec": "mpeg1video",
         "audio_codec": "mp3"
     },
-    "WEBM MPEG": {
-        "codec": "mpeg1video",
-        "audio_codec": "mp3"
-    },
-    "AVI MPEG": {
-        "codec": "mpeg1video",
-        "audio_codec": "mp3"
-    },
-    "WMV MPEG": {
-        "codec": "mpeg1video",
-        "audio_codec": "mp3"
-    },
-    "MP4 WMV": {
+    "WMV": {
         "codec": "wmv2"
-    },
-    "WEBM WMV": {
-        "codec": "wmv2"
-    },
-    "AVI WMV": {
-        "codec": "wmv2"
-    },
-    "MPEG WMV": {
-        "codec": "wmv2"
-    },
+    }
 }
 
 
@@ -107,7 +60,7 @@ def convert_file(task):
     output_file = "./files/{}_converted.{}".format(task.id, task.newFormat)
     try:
         video_file_clip = VideoFileClip(input_file)
-        codec = CODECS["{} {}".format(Utils.get_file_extension(input_file), task.newFormat).upper()]
+        codec = CODECS["{}".format(task.newFormat).upper()]
         logger.info(codec)
         if 'audio_codec' in codec:
             video_file_clip.write_videofile(output_file, codec=codec['codec'], audio_codec=codec['audio_codec'])
