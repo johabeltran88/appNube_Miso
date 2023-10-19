@@ -2,6 +2,8 @@ from flask_sqlalchemy import SQLAlchemy
 from marshmallow import fields, Schema
 from marshmallow_sqlalchemy import SQLAlchemyAutoSchema
 from sqlalchemy import Date
+from datetime import datetime
+
 
 db = SQLAlchemy()
 
@@ -13,10 +15,10 @@ class Usuario(db.Model):
 
 class Task(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    nombre_archivo = db.Column(db.String(50))
-    extension_original = db.Column(db.String(5))
-    extension_final = db.Column(db.String(5))
-    done = db.Column(db.Boolean)
+    fileName = db.Column(db.String(128))
+    newFormat = db.Column(db.String(10))
+    status = db.Column(db.String(10))
+    timeStamp = db.Column(db.DateTime, default=datetime.utcnow)
     user_id = db.Column(db.Integer, db.ForeignKey('usuario.id'))
     usuario = db.relationship('Usuario', backref=db.backref('tasks', lazy=True))
 

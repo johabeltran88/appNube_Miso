@@ -1,14 +1,25 @@
 from flask import Blueprint, request
+from flask_jwt_extended import jwt_required, create_access_token
+from flask_restful import Resource
+from datetime import datetime
+import hashlib
+import string
+import re
+from marshmallow import Schema, fields
+
 
 from commons.utils import Utils
 from commons.video_format_enum import VideoFormatEnum
-from models import db, Task, TaskSchema
+from models import \
+    db, \
+    Usuario, UsuarioSchema, Task, TaskSchema
+
+usuario_schema = UsuarioSchema()
+task_schema = TaskSchema()
 
 bluePrintTaskController = Blueprint('bluePrintTaskController', __name__)
 
 CONTROLLER_ROUTE = '/api/tasks'
-
-taskSchema = TaskSchema()
 
 
 @bluePrintTaskController.route(CONTROLLER_ROUTE, methods=['POST'])
@@ -67,3 +78,23 @@ def validate_extension_equals(file_extension, new_format):
     if file_extension == new_format:
         return "El archivo seleccionado tiene el nuevo formato ingresado, no es necesario hacer la conversión."
     return None
+
+
+
+@bluePrintTaskController.route(CONTROLLER_ROUTE + '/<int:id_usuario>', methods=['GET'])
+@jwt_required()
+def get_tasks_for_user(id_usuario):
+    try:
+        usuario = Usuario.query.filter(Usuario.id == id_usuario).first()
+        if not usuario:
+            return {"mensaje": "El usuario no existe"}, 422
+        tasks = Task.query.filter(Task.usuario == usuario).all()
+        return task_schema.dump(tasks, many=True), 200
+    except Exception as e:
+        return {"Ha sucedido un error al intentar obtener las tareas del usuario": str(e)}, 500  # You can decide on a more specific error message if needed
+
+@bluePrintTaskController.route(CONTROLLER_ROUTE + '/<int:id_usuario>', methods=['DELETE'])
+@jwt_required()
+def delete_tasks_for_user(id_usuario):
+    
+
