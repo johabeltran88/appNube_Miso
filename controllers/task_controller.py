@@ -115,11 +115,11 @@ def delete_tasks_for_user(id_task):
 
         # If task status is 'Disponible', delete the associated files
     if task.status == 'Disponible':
-        # We get the original file location
-        original_file_path = os.path.join("./files", "{}.{}".format(task.id, Utils.get_file_extension(task.fileName)))
-        converted_file_path = os.path.join("./files", "{}.{}".format(task.id, task.newFormat))
-        
         try:
+            # We get the original file location
+            original_file_path = os.path.join("./files", "{}.{}".format(task.id, Utils.get_file_extension(task.fileName)))
+            converted_file_path = os.path.join("./files", "{}.{}".format(task.id, task.newFormat))
+        
             # Attempt to remove the original file from local storage
             if os.path.exists(original_file_path):
                 os.remove(original_file_path)
