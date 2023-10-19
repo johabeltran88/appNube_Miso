@@ -1,11 +1,13 @@
 from flask import Blueprint, request
-from flask_jwt_extended import jwt_required, create_access_token
+from flask_jwt_extended import jwt_required, get_jwt_identity
 from flask_restful import Resource
 from datetime import datetime
 import hashlib
 import string
 import re
 from marshmallow import Schema, fields
+import os
+
 
 
 from commons.utils import Utils
@@ -43,7 +45,7 @@ def create_task():
     db.session.commit()
     file = request.files['fileName']
     file.save('./files/{}.{}'.format(task.id, file_extension))
-    return taskSchema.dump(task), 201
+    return task_schema.dump(task), 201
 
 
 def validate_blank(*fields):
@@ -81,9 +83,11 @@ def validate_extension_equals(file_extension, new_format):
 
 
 
-@bluePrintTaskController.route(CONTROLLER_ROUTE + '/<int:id_usuario>', methods=['GET'])
+@bluePrintTaskController.route(CONTROLLER_ROUTE, methods=['GET'])
 @jwt_required()
-def get_tasks_for_user(id_usuario):
+def get_tasks_for_user():
+    current_user = get_jwt_identity()
+    id_usuario = current_user['identity']  # get the id of the current user - this requires the identity=True property in the JWT
     try:
         usuario = Usuario.query.filter(Usuario.id == id_usuario).first()
         if not usuario:
@@ -91,10 +95,48 @@ def get_tasks_for_user(id_usuario):
         tasks = Task.query.filter(Task.usuario == usuario).all()
         return task_schema.dump(tasks, many=True), 200
     except Exception as e:
-        return {"Ha sucedido un error al intentar obtener las tareas del usuario": str(e)}, 500  # You can decide on a more specific error message if needed
-
-@bluePrintTaskController.route(CONTROLLER_ROUTE + '/<int:id_usuario>', methods=['DELETE'])
-@jwt_required()
-def delete_tasks_for_user(id_usuario):
+        return {"Ha sucedido un error al intentar obtener las tareas del usuario": str(e)}, 500  
     
+@bluePrintTaskController.route(CONTROLLER_ROUTE + '/<int:id_task>', methods=['DELETE'])
+@jwt_required()
+def delete_tasks_for_user(id_task):
+    current_user = get_jwt_identity()
+    id_usuario = current_user['identity']  # get the id of the current user - this requires the identity=True property in the JWT
+    try:
+        usuario = Usuario.query.filter(Usuario.id == id_usuario).first()
+        if not usuario:
+            return {"mensaje": "El usuario no existe"}, 422
+        # Retrieve the task by id_task and id_usuario
+        task = Task.query.filter(Task.id == id_task, Task.usuario == usuario).first()
+        if not task:
+            return {"mensaje": "La tarea no existe o no pertenece al usuario"}, 404
+    except Exception as e:
+        return {"Ha sucedido un error al intentar obtener la tarea del usuario": str(e)}, 500
+
+        # If task status is 'Disponible', delete the associated files
+    if task.status == 'Disponible':
+        # We get the original file location
+        original_file_path = os.path.join("./files", "{}.{}".format(task.id, Utils.get_file_extension(task.fileName)))
+        converted_file_path = os.path.join("./files", "{}.{}".format(task.id, task.newFormat))
+        
+        try:
+            # Attempt to remove the original file from local storage
+            if os.path.exists(original_file_path):
+                os.remove(original_file_path)
+
+            # Attempt to remove the converted file from local storage
+            if os.path.exists(converted_file_path):
+                os.remove(converted_file_path)
+        except Exception as e:
+            # If there's an error deleting either file, return an error message
+            return {"mensaje": "Error eliminando los archivos asociados a la tarea: {}".format(str(e))}, 500
+
+        # If both files were deleted successfully, remove the task from the database
+        db.session.delete(task)
+        db.session.commit()
+        return {"mensaje": "Tarea eliminada exitosamente"}, 200
+    else:
+        # If task status is not 'Disponible', return an error message
+        return {"mensaje": "La tarea no se puede eliminar porque está en proceso de conversión"}, 422
+
 
