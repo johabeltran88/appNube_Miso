@@ -43,7 +43,7 @@ CODECS = {
 
 @celery.task(name="read_record_and_send_message_convert_task")
 def read_record_and_send_message_convert_task():
-    Commons.init_db()
+    Commons.init()
     tasks = Task.query.filter(Task.status == 'uploaded').all()
     for task in tasks:
         convert_file.delay(taskSchema.dump(task))
@@ -54,7 +54,7 @@ def read_record_and_send_message_convert_task():
 
 @celery.task(name="convert_file")
 def convert_file(task):
-    Commons.init_db()
+    Commons.init()
     task = Task.query.filter(Task.id == task['id']).first()
     input_file = "./files/{}.{}".format(task.id, Utils.get_file_extension(task.fileName))
     output_file = "./files/{}_converted.{}".format(task.id, task.newFormat)

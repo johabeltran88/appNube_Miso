@@ -3,6 +3,7 @@ from flask import Blueprint, request
 from commons.utils import Utils
 from commons.video_format_enum import VideoFormatEnum
 from models import db, Task, TaskSchema
+from flask_jwt_extended import jwt_required
 
 bluePrintTaskController = Blueprint('bluePrintTaskController', __name__)
 
@@ -12,6 +13,7 @@ taskSchema = TaskSchema()
 
 
 @bluePrintTaskController.route(CONTROLLER_ROUTE, methods=['POST'])
+@jwt_required()
 def create_task():
     errors = []
     None if validate_file('fileName', VideoFormatEnum) is None else errors.append(
