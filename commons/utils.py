@@ -1,0 +1,8 @@
+import os
+
+
+class Utils:
+
+    @staticmethod
+    def get_file_extension(filename):
+        return os.path.splitext(filename)[-1].replace(".", "")
