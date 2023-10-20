@@ -6,11 +6,14 @@ from commons.commons import Commons
 from controllers.LoginController import bluePrintLoginController
 from controllers.task_controller import bluePrintTaskController
 
+
 app = Commons.init()
+
 
 cors = CORS(app)
 
 # Registrar los controladores en la aplicación
+
 app.register_blueprint(bluePrintTaskController)
 app.register_blueprint(bluePrintLoginController)
 

@@ -2,7 +2,8 @@ import hashlib
 import re
 import string
 
-from flask import Blueprint, request
+
+from flask import Blueprint, request, jsonify
 from flask_jwt_extended import create_access_token
 
 from models import \
@@ -78,4 +79,4 @@ def login():
         return {"mensaje": "Usuario o contraseña incorrectos"}, 404
     else:
         token_de_acceso = create_access_token(identity=usuario.id)
-        return {"mensaje": "Inicio de sesión exitoso", "token": token_de_acceso}
+        return jsonify({"mensaje": "Inicio de sesión exitoso", "token": token_de_acceso, "id": usuario.id})
