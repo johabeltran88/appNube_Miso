@@ -13,6 +13,8 @@ bluePrintTaskController = Blueprint('bluePrintTaskController', __name__)
 
 CONTROLLER_ROUTE = '/api/tasks'
 
+files_host = os.environ.get("FILES_HOST")
+
 
 @bluePrintTaskController.route(CONTROLLER_ROUTE, methods=['POST'])
 @jwt_required()
@@ -23,12 +25,9 @@ def create_task():
     None if validate_blank('newFormat') is None else errors.extend(validate_blank('newFormat'))
     None if validate_value('newFormat', VideoFormatEnum) is None else errors.append(
         validate_value('newFormat', VideoFormatEnum))
-    print('HASTA ACA LLEGUE')
     if len(errors) > 0:
         return {"errors": errors}, 400
-    print('HASTA ACA LLEGUE 2')
     id_usuario = get_jwt_identity()
-    print('HASTA ACA LLEGUE 3')
     file = request.files['fileName']
     file_extension = Utils.get_file_extension(file.filename)
     None if (validate_extension_equals(file_extension, request.form.get('newFormat')) is None) else errors.append(
@@ -77,6 +76,7 @@ def validate_extension_equals(file_extension, new_format):
         return "El archivo seleccionado tiene el nuevo formato ingresado, no es necesario hacer la conversión."
     return None
 
+
 @bluePrintTaskController.route(CONTROLLER_ROUTE + '/<int:id>', methods=['GET'])
 @jwt_required()
 def get_task_by_id(id):
@@ -87,17 +87,21 @@ def get_task_by_id(id):
         return {"mensaje": "No existe una tarea con ese id asignado a su usuario"}, 422
     else:
         resultado = task_schema.dump(task)
-        resultado['original_file'] = url_for('bluePrintTaskController.publish_file', file_name= str(task.id) + "." + task.fileName.split(".")[1])
-        if(task.status == 'processed'):            
-            resultado['converted_file'] = url_for('bluePrintTaskController.publish_file', file_name= str(task.id) + "_converted." + task.newFormat)
+        resultado['original_file'] = url_for('bluePrintTaskController.publish_file',
+                                             file_name=str(task.id) + "." + task.fileName.split(".")[1])
+        if (task.status == 'processed'):
+            resultado['converted_file'] = url_for('bluePrintTaskController.publish_file',
+                                                  file_name=str(task.id) + "_converted." + task.newFormat)
         else:
             resultado['converted_file'] = ''
         return jsonify(resultado)
-    
+
+
 @bluePrintTaskController.route(CONTROLLER_ROUTE + '/files/<file_name>')
 def publish_file(file_name):
     basedir = os.path.realpath(os.path.dirname(os.getcwd()))
-    data_dir = os.path.join(basedir, 'APPNUBE_MISO', 'files')
+    host = 'localhost' if files_host is None else files_host
+    data_dir = os.path.join(basedir, host, 'files')
     print(data_dir)
     return send_from_directory(data_dir, file_name, as_attachment=True,cache_timeout=0)    
 
