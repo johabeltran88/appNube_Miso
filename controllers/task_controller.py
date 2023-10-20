@@ -1,6 +1,6 @@
 import os
 
-from flask import Blueprint, request
+from flask import Blueprint, request, jsonify, url_for, send_from_directory
 from flask_jwt_extended import jwt_required, get_jwt_identity
 
 from commons.utils import Utils
@@ -76,6 +76,30 @@ def validate_extension_equals(file_extension, new_format):
     if file_extension == new_format:
         return "El archivo seleccionado tiene el nuevo formato ingresado, no es necesario hacer la conversión."
     return None
+
+@bluePrintTaskController.route(CONTROLLER_ROUTE + '/<int:id>', methods=['GET'])
+@jwt_required()
+def get_task_by_id(id):
+    id_usuario = get_jwt_identity()
+    print(id_usuario)
+    task = Task.query.filter(Task.id == id, Task.user_id == id_usuario).first()
+    if task is None:
+        return {"mensaje": "No existe una tarea con ese id asignado a su usuario"}, 422
+    else:
+        resultado = task_schema.dump(task)
+        resultado['original_file'] = url_for('bluePrintTaskController.publish_file', file_name= str(task.id) + "." + task.fileName.split(".")[1])
+        if(task.status == 'processed'):            
+            resultado['converted_file'] = url_for('bluePrintTaskController.publish_file', file_name= str(task.id) + "_converted." + task.newFormat)
+        else:
+            resultado['converted_file'] = ''
+        return jsonify(resultado)
+    
+@bluePrintTaskController.route(CONTROLLER_ROUTE + '/files/<file_name>')
+def publish_file(file_name):
+    basedir = os.path.realpath(os.path.dirname(os.getcwd()))
+    data_dir = os.path.join(basedir, 'APPNUBE_MISO', 'files')
+    print(data_dir)
+    return send_from_directory(data_dir, file_name, as_attachment=True,cache_timeout=0)    
 
 
 @bluePrintTaskController.route(CONTROLLER_ROUTE, methods=['GET'])
