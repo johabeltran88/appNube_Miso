@@ -1,5 +1,5 @@
 from flask import Blueprint, request
-from flask_jwt_extended import jwt_required, get_jwt_identity
+from flask_jwt_extended import jwt_required, get_jwt_identity, get_jwt
 import os
 
 
@@ -23,15 +23,19 @@ def create_task():
     None if validate_blank('newFormat') is None else errors.extend(validate_blank('newFormat'))
     None if validate_value('newFormat', VideoFormatEnum) is None else errors.append(
         validate_value('newFormat', VideoFormatEnum))
+    print('HASTA ACA LLEGUE')
     if len(errors) > 0:
         return {"errors": errors}, 400
+    print('HASTA ACA LLEGUE 2')
+    id_usuario = get_jwt_identity()
+    print('HASTA ACA LLEGUE 3')
     file = request.files['fileName']
     file_extension = Utils.get_file_extension(file.filename)
     None if (validate_extension_equals(file_extension, request.form.get('newFormat')) is None) else errors.append(
         validate_extension_equals(file_extension, request.form.get('newFormat')))
     if len(errors) > 0:
         return {"errors": errors}, 400
-    task = Task(fileName=request.files['fileName'].filename, newFormat=request.form.get('newFormat').upper(), status='uploaded')
+    task = Task(fileName=request.files['fileName'].filename, newFormat=request.form.get('newFormat').upper(), status='uploaded', user_id = id_usuario)
     db.session.add(task)
     db.session.commit()
     file = request.files['fileName']
@@ -93,19 +97,16 @@ def get_tasks_for_user():
 def delete_tasks_for_user(id_task):
     current_user = get_jwt_identity()
     id_usuario = current_user['identity']  # get the id of the current user - this requires the identity=True property in the JWT
-    try:
-        usuario = Usuario.query.filter(Usuario.id == id_usuario).first()
-        if not usuario:
-            return {"mensaje": "El usuario no existe"}, 422
+    try:   
         # Retrieve the task by id_task and id_usuario
-        task = Task.query.filter(Task.id == id_task, Task.usuario == usuario).first()
+        task = Task.query.filter(Task.id == id_task, Task.user_id == id_usuario).first()
         if not task:
             return {"mensaje": "La tarea no existe o no pertenece al usuario"}, 404
     except Exception as e:
         return {"Ha sucedido un error al intentar obtener la tarea del usuario": str(e)}, 500
 
         # If task status is 'Disponible', delete the associated files
-    if task.status == 'Disponible':
+    if task.status == 'processed':
         try:
             # We get the original file location
             original_file_path = os.path.join("./files", "{}.{}".format(task.id, Utils.get_file_extension(task.fileName)))
