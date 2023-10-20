@@ -1,23 +1,12 @@
 from flask import Blueprint, request
 from flask_jwt_extended import jwt_required, get_jwt_identity
-from flask_restful import Resource
-from datetime import datetime
-import hashlib
-import string
-import re
-from marshmallow import Schema, fields
 import os
-
-
 
 
 from commons.utils import Utils
 from commons.video_format_enum import VideoFormatEnum
-from models import \
-    db, \
-    Usuario, UsuarioSchema, Task, TaskSchema
+from models import db, Usuario, Task, TaskSchema
 
-usuario_schema = UsuarioSchema()
 task_schema = TaskSchema()
 
 bluePrintTaskController = Blueprint('bluePrintTaskController', __name__)
