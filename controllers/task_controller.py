@@ -1,7 +1,7 @@
-from flask import Blueprint, request
-from flask_jwt_extended import jwt_required, get_jwt_identity, get_jwt
 import os
 
+from flask import Blueprint, request
+from flask_jwt_extended import jwt_required, get_jwt_identity
 
 from commons.utils import Utils
 from commons.video_format_enum import VideoFormatEnum
@@ -35,7 +35,8 @@ def create_task():
         validate_extension_equals(file_extension, request.form.get('newFormat')))
     if len(errors) > 0:
         return {"errors": errors}, 400
-    task = Task(fileName=request.files['fileName'].filename, newFormat=request.form.get('newFormat').upper(), status='uploaded', user_id = id_usuario)
+    task = Task(fileName=request.files['fileName'].filename, newFormat=request.form.get('newFormat').upper(),
+                status='uploaded', user_id=id_usuario)
     db.session.add(task)
     db.session.commit()
     file = request.files['fileName']
@@ -77,27 +78,22 @@ def validate_extension_equals(file_extension, new_format):
     return None
 
 
-
 @bluePrintTaskController.route(CONTROLLER_ROUTE, methods=['GET'])
 @jwt_required()
 def get_tasks_for_user():
-    current_user = get_jwt_identity()
-    id_usuario = current_user['identity']  # get the id of the current user - this requires the identity=True property in the JWT
+    id_usuario = get_jwt_identity()
     try:
-        usuario = Usuario.query.filter(Usuario.id == id_usuario).first()
-        if not usuario:
-            return {"mensaje": "El usuario no existe"}, 422
-        tasks = Task.query.filter(Task.usuario == usuario).all()
-        return task_schema.dump(tasks, many=True), 200
+        tasks = Task.query.filter(Task.user_id == id_usuario).all()
+        return {"task": [task_schema.dump(task) for task in tasks]}, 200
     except Exception as e:
-        return {"Ha sucedido un error al intentar obtener las tareas del usuario": str(e)}, 500  
-    
+        return {"Ha sucedido un error al intentar obtener las tareas del usuario": str(e)}, 500
+
+
 @bluePrintTaskController.route(CONTROLLER_ROUTE + '/<int:id_task>', methods=['DELETE'])
 @jwt_required()
 def delete_tasks_for_user(id_task):
-    current_user = get_jwt_identity()
-    id_usuario = current_user['identity']  # get the id of the current user - this requires the identity=True property in the JWT
-    try:   
+    id_usuario = get_jwt_identity()
+    try:
         # Retrieve the task by id_task and id_usuario
         task = Task.query.filter(Task.id == id_task, Task.user_id == id_usuario).first()
         if not task:
@@ -106,12 +102,13 @@ def delete_tasks_for_user(id_task):
         return {"Ha sucedido un error al intentar obtener la tarea del usuario": str(e)}, 500
 
         # If task status is 'Disponible', delete the associated files
-    if task.status == 'processed':
+    if task.status != 'processing':
         try:
             # We get the original file location
-            original_file_path = os.path.join("./files", "{}.{}".format(task.id, Utils.get_file_extension(task.fileName)))
-            converted_file_path = os.path.join("./files", "{}.{}".format(task.id, task.newFormat))
-        
+            original_file_path = os.path.join("./files",
+                                              "{}.{}".format(task.id, Utils.get_file_extension(task.fileName)))
+            converted_file_path = os.path.join("./files", "{}_converted.{}".format(task.id, task.newFormat))
+
             # Attempt to remove the original file from local storage
             if os.path.exists(original_file_path):
                 os.remove(original_file_path)
@@ -130,5 +127,3 @@ def delete_tasks_for_user(id_task):
     else:
         # If task status is not 'Disponible', return an error message
         return {"mensaje": "La tarea no se puede eliminar porque está en proceso de conversión"}, 422
-
-
