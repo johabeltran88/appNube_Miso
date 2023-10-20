@@ -10,6 +10,7 @@ import os
 
 
 
+
 from commons.utils import Utils
 from commons.video_format_enum import VideoFormatEnum
 from models import \
@@ -25,6 +26,7 @@ CONTROLLER_ROUTE = '/api/tasks'
 
 
 @bluePrintTaskController.route(CONTROLLER_ROUTE, methods=['POST'])
+@jwt_required()
 def create_task():
     errors = []
     None if validate_file('fileName', VideoFormatEnum) is None else errors.append(
@@ -71,7 +73,7 @@ def validate_file(field, enum):
 
 
 def validate_value(field, enum):
-    if not request.form.get(field).upper() in enum.__members__:
+    if request.form.get(field) is not None and not request.form.get(field).upper() in enum.__members__:
         return "El campo {} solo admite los valores {}.".format(field, ", ".join(member for member in enum.__members__))
     return None
 
