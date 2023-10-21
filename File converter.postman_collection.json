@@ -1,0 +1,897 @@
+{
+	"info": {
+		"_postman_id": "f1432f74-2a2f-4108-8f39-81f335f81fb1",
+		"name": "File converter",
+		"description": "File converter es una colección de postman que cambia el formato de archivos de video. Puede correr la colección de postman localmente luego de haber clonado el repositorio [https://github.com/johabeltran88/appNube_Miso](https://github.com/johabeltran88/appNube_Miso) y ejecutar el docker-compose contenido allí.\n\n## Inicio rápido\n\nPara utilizar los servicios definidos en esta colección primero de crear un usuario  \ncon la petición **Sing up** luego de esto debe autenticarse con el request **Login**  \npara generar un token valido con el fin de poder usar las API de creación, eliminación  \ny consulta de las tareas de conversión.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "30636504",
+		"_collection_link": "https://lively-trinity-867067.postman.co/workspace/2f41bceb-9a98-4448-a447-395d57457619/collection/30636504-f1432f74-2a2f-4108-8f39-81f335f81fb1?action=share&source=collection_link&creator=30636504"
+	},
+	"item": [
+		{
+			"name": "Sign up",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"usuario\": \"JohannaPepe10\",\r\n    \"password1\": \"Hola123@\",\r\n    \"password2\": \"Hola123@\",\r\n    \"email\": \"pepe111@hotmail.com\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://127.0.0.1:5000/api/auth/signup",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "5000",
+					"path": [
+						"api",
+						"auth",
+						"signup"
+					]
+				},
+				"description": "Este servicio permite crear un usuario valido para conceder acceso a las API de conversión de archivos de video"
+			},
+			"response": [
+				{
+					"name": "Succesful response",
+					"originalRequest": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"usuario\": \"JohannaPepe3\",\r\n    \"password1\": \"Hola123@\",\r\n    \"password2\": \"Hola123@\",\r\n    \"email\": \"pepe3@hotmail.com\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://127.0.0.1:5000/api/auth/signup",
+							"protocol": "http",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "5000",
+							"path": [
+								"api",
+								"auth",
+								"signup"
+							]
+						}
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						},
+						{
+							"key": "Content-Length",
+							"value": "49"
+						},
+						{
+							"key": "Access-Control-Allow-Origin",
+							"value": "*"
+						},
+						{
+							"key": "Server",
+							"value": "Werkzeug/2.0.1 Python/3.8.18"
+						},
+						{
+							"key": "Date",
+							"value": "Fri, 20 Oct 2023 21:35:06 GMT"
+						}
+					],
+					"cookie": [],
+					"body": "{\n    \"id\": 3,\n    \"mensaje\": \"usuario creado exitosamente\"\n}"
+				},
+				{
+					"name": "Bad request",
+					"originalRequest": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"usuario\": \"JohannaPepe3\",\r\n    \"password1\": \"Hola123@\",\r\n    \"password2\": \"Hola123@\",\r\n    \"email\": \"pepe3@hotmail.com\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://127.0.0.1:5000/api/auth/signup",
+							"protocol": "http",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "5000",
+							"path": [
+								"api",
+								"auth",
+								"signup"
+							]
+						}
+					},
+					"status": "UNPROCESSABLE ENTITY",
+					"code": 422,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						},
+						{
+							"key": "Content-Length",
+							"value": "35"
+						},
+						{
+							"key": "Access-Control-Allow-Origin",
+							"value": "*"
+						},
+						{
+							"key": "Server",
+							"value": "Werkzeug/2.0.1 Python/3.8.18"
+						},
+						{
+							"key": "Date",
+							"value": "Fri, 20 Oct 2023 21:20:50 GMT"
+						}
+					],
+					"cookie": [],
+					"body": "{\n    \"mensaje\": \"El usuario ya existe\"\n}"
+				}
+			]
+		},
+		{
+			"name": "Login",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"var jsonData = pm.response.json();\r",
+							"pm.environment.set(\"token\", jsonData.token);"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"username\": \"JohannaPepe10\",\r\n    \"password\": \"Hola123@\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://127.0.0.1:5000/api/auth/login",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "5000",
+					"path": [
+						"api",
+						"auth",
+						"login"
+					]
+				},
+				"description": "Este servicio permite generar un token de acceso valido a usuarios con credenciales validas."
+			},
+			"response": [
+				{
+					"name": "Successful response",
+					"originalRequest": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"username\": \"JohannaPepe10\",\r\n    \"password\": \"Hola123@\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://127.0.0.1:5000/api/auth/login",
+							"protocol": "http",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "5000",
+							"path": [
+								"api",
+								"auth",
+								"login"
+							]
+						}
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						},
+						{
+							"key": "Content-Length",
+							"value": "323"
+						},
+						{
+							"key": "Access-Control-Allow-Origin",
+							"value": "*"
+						},
+						{
+							"key": "Server",
+							"value": "Werkzeug/2.0.1 Python/3.8.18"
+						},
+						{
+							"key": "Date",
+							"value": "Fri, 20 Oct 2023 21:36:04 GMT"
+						}
+					],
+					"cookie": [],
+					"body": "{\n    \"id\": 2,\n    \"mensaje\": \"Inicio de sesión exitoso\",\n    \"token\": \"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJmcmVzaCI6ZmFsc2UsImlhdCI6MTY5NzgzNzc2NCwianRpIjoiOTNiMGUwM2ItYTViMS00MzNjLTkwYjItNTkwM2YxMmQ3NTU5IiwidHlwZSI6ImFjY2VzcyIsInN1YiI6MiwibmJmIjoxNjk3ODM3NzY0LCJleHAiOjE2OTc4Mzg2NjR9.2nQim8NP4wxuypmqRJy28d3y5aR_lH-qc21EOTGG7Ew\"\n}"
+				},
+				{
+					"name": "Not found",
+					"originalRequest": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"username\": \"JohannaPepe1000\",\r\n    \"password\": \"Hola123@\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://127.0.0.1:5000/api/auth/login",
+							"protocol": "http",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "5000",
+							"path": [
+								"api",
+								"auth",
+								"login"
+							]
+						}
+					},
+					"status": "NOT FOUND",
+					"code": 404,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						},
+						{
+							"key": "Content-Length",
+							"value": "52"
+						},
+						{
+							"key": "Access-Control-Allow-Origin",
+							"value": "*"
+						},
+						{
+							"key": "Server",
+							"value": "Werkzeug/2.0.1 Python/3.8.18"
+						},
+						{
+							"key": "Date",
+							"value": "Fri, 20 Oct 2023 21:38:06 GMT"
+						}
+					],
+					"cookie": [],
+					"body": "{\n    \"mensaje\": \"Usuario o contraseña incorrectos\"\n}"
+				}
+			]
+		},
+		{
+			"name": "Get tasks",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://127.0.0.1:5000/api/tasks",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "5000",
+					"path": [
+						"api",
+						"tasks"
+					]
+				},
+				"description": "Este servicio permite consultar todas las tareas de conversión de archivos de video creadas por un usuario."
+			},
+			"response": [
+				{
+					"name": "Successful response",
+					"originalRequest": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://127.0.0.1:5000/api/tasks",
+							"protocol": "http",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "5000",
+							"path": [
+								"api",
+								"tasks"
+							]
+						}
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						},
+						{
+							"key": "Content-Length",
+							"value": "147"
+						},
+						{
+							"key": "Access-Control-Allow-Origin",
+							"value": "*"
+						},
+						{
+							"key": "Server",
+							"value": "Werkzeug/2.0.1 Python/3.8.18"
+						},
+						{
+							"key": "Date",
+							"value": "Fri, 20 Oct 2023 21:39:42 GMT"
+						}
+					],
+					"cookie": [],
+					"body": "{\n    \"task\": [\n        {\n            \"fileName\": \"22_converted.WEBM\",\n            \"id\": \"3\",\n            \"newFormat\": \"MPEG\",\n            \"status\": \"uploaded\",\n            \"timeStamp\": \"2023-10-20T21:39:39.349870\",\n            \"user_id\": \"2\"\n        }\n    ]\n}"
+				}
+			]
+		},
+		{
+			"name": "Get task by id",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://127.0.0.1:5000/api/tasks/:task_id",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "5000",
+					"path": [
+						"api",
+						"tasks",
+						":task_id"
+					],
+					"variable": [
+						{
+							"key": "task_id",
+							"value": "",
+							"description": "Id de la tarea a consultar"
+						}
+					]
+				},
+				"description": "Este servicio permite consultar una tarea de conversion de archivo de video por id."
+			},
+			"response": [
+				{
+					"name": "Successful response",
+					"originalRequest": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://127.0.0.1:5000/api/tasks/:task_id",
+							"protocol": "http",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "5000",
+							"path": [
+								"api",
+								"tasks",
+								":task_id"
+							],
+							"variable": [
+								{
+									"key": "task_id",
+									"value": "1",
+									"description": "Id de la tarea a consultar"
+								}
+							]
+						}
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						},
+						{
+							"key": "Content-Length",
+							"value": "232"
+						},
+						{
+							"key": "Access-Control-Allow-Origin",
+							"value": "*"
+						},
+						{
+							"key": "Server",
+							"value": "Werkzeug/2.0.1 Python/3.8.18"
+						},
+						{
+							"key": "Date",
+							"value": "Fri, 20 Oct 2023 21:40:52 GMT"
+						}
+					],
+					"cookie": [],
+					"body": "{\n    \"converted_file\": \"/api/tasks/files/3_converted.MPEG\",\n    \"fileName\": \"22_converted.WEBM\",\n    \"id\": \"3\",\n    \"newFormat\": \"MPEG\",\n    \"original_file\": \"/api/tasks/files/3.WEBM\",\n    \"status\": \"processed\",\n    \"timeStamp\": \"2023-10-20T21:39:39.349870\",\n    \"user_id\": \"2\"\n}"
+				},
+				{
+					"name": "Unprocessable entity",
+					"originalRequest": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://127.0.0.1:5000/api/tasks/:task_id",
+							"protocol": "http",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "5000",
+							"path": [
+								"api",
+								"tasks",
+								":task_id"
+							],
+							"variable": [
+								{
+									"key": "task_id",
+									"value": "1000",
+									"description": "Id de la tarea a consultar"
+								}
+							]
+						}
+					},
+					"status": "UNPROCESSABLE ENTITY",
+					"code": 422,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						},
+						{
+							"key": "Content-Length",
+							"value": "67"
+						},
+						{
+							"key": "Access-Control-Allow-Origin",
+							"value": "*"
+						},
+						{
+							"key": "Server",
+							"value": "Werkzeug/2.0.1 Python/3.8.18"
+						},
+						{
+							"key": "Date",
+							"value": "Fri, 20 Oct 2023 21:41:11 GMT"
+						}
+					],
+					"cookie": [],
+					"body": "{\n    \"mensaje\": \"No existe una tarea con ese id asignado a su usuario\"\n}"
+				}
+			]
+		},
+		{
+			"name": "Delete task",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "http://127.0.0.1:5000/api/tasks/:task_id",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "5000",
+					"path": [
+						"api",
+						"tasks",
+						":task_id"
+					],
+					"variable": [
+						{
+							"key": "task_id",
+							"value": "1",
+							"description": "Id de la tarea a elminar"
+						}
+					]
+				},
+				"description": "Este servicio permite eliminar una tarea de conversion de archivo de video."
+			},
+			"response": [
+				{
+					"name": "Successful response",
+					"originalRequest": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "http://127.0.0.1:5000/api/tasks/:task_id",
+							"protocol": "http",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "5000",
+							"path": [
+								"api",
+								"tasks",
+								":task_id"
+							],
+							"variable": [
+								{
+									"key": "task_id",
+									"value": "1",
+									"description": "Id de la tarea a eliminar"
+								}
+							]
+						}
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						},
+						{
+							"key": "Content-Length",
+							"value": "43"
+						},
+						{
+							"key": "Access-Control-Allow-Origin",
+							"value": "*"
+						},
+						{
+							"key": "Server",
+							"value": "Werkzeug/2.0.1 Python/3.8.18"
+						},
+						{
+							"key": "Date",
+							"value": "Fri, 20 Oct 2023 21:41:56 GMT"
+						}
+					],
+					"cookie": [],
+					"body": "{\n    \"mensaje\": \"Tarea eliminada exitosamente\"\n}"
+				},
+				{
+					"name": "Not found",
+					"originalRequest": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "http://127.0.0.1:5000/api/tasks/:task_id",
+							"protocol": "http",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "5000",
+							"path": [
+								"api",
+								"tasks",
+								":task_id"
+							],
+							"variable": [
+								{
+									"key": "task_id",
+									"value": "1000",
+									"description": "Id de la tarea a eliminar"
+								}
+							]
+						}
+					},
+					"status": "NOT FOUND",
+					"code": 404,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						},
+						{
+							"key": "Content-Length",
+							"value": "59"
+						},
+						{
+							"key": "Access-Control-Allow-Origin",
+							"value": "*"
+						},
+						{
+							"key": "Server",
+							"value": "Werkzeug/2.0.1 Python/3.8.18"
+						},
+						{
+							"key": "Date",
+							"value": "Fri, 20 Oct 2023 21:41:40 GMT"
+						}
+					],
+					"cookie": [],
+					"body": "{\n    \"mensaje\": \"La tarea no existe o no pertenece al usuario\"\n}"
+				}
+			]
+		},
+		{
+			"name": "Create task",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "fileName",
+							"description": "Archivo que desea cambiar de formato",
+							"type": "file",
+							"src": "/C:/Users/TutoNatys/Videos/22_converted.WEBM"
+						},
+						{
+							"key": "newFormat",
+							"value": "Mpeg",
+							"description": "Formato al que desea convertir el archivo seleccionado. Formatos soportados mp4, webm, avi, mpeg, wmv. No es sensible a mayusculas y minusculas.",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "http://localhost:5000/api/tasks",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "5000",
+					"path": [
+						"api",
+						"tasks"
+					]
+				},
+				"description": "Este servicio permite crear un tarea de conversion de formato de archivo de video."
+			},
+			"response": [
+				{
+					"name": "Successful response",
+					"originalRequest": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "fileName",
+									"description": "Archivo que desea cambiar de formato",
+									"type": "file",
+									"src": "/C:/Users/TutoNatys/Videos/22_converted.WEBM"
+								},
+								{
+									"key": "newFormat",
+									"value": "Mpeg",
+									"description": "Formato al que desea convertir el archivo seleccionado. Formatos soportados mp4, webm, avi, mpeg, wmv. No es sensible a mayusculas y minusculas.",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "http://localhost:5000/api/tasks",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5000",
+							"path": [
+								"api",
+								"tasks"
+							]
+						}
+					},
+					"status": "CREATED",
+					"code": 201,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						},
+						{
+							"key": "Content-Length",
+							"value": "120"
+						},
+						{
+							"key": "Server",
+							"value": "Werkzeug/2.0.1 Python/3.8.18"
+						},
+						{
+							"key": "Date",
+							"value": "Thu, 19 Oct 2023 10:36:52 GMT"
+						}
+					],
+					"cookie": [],
+					"body": "{\n    \"fileName\": \"22_converted.WEBM\",\n    \"id\": 5,\n    \"newFormat\": \"MPEG\",\n    \"status\": \"uploaded\",\n    \"timeStamp\": \"2023-10-19T10:36:52.637137\"\n}"
+				},
+				{
+					"name": "Bad request",
+					"originalRequest": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "fileName",
+									"description": "Archivo que desea cambiar de formato",
+									"type": "file",
+									"src": [],
+									"disabled": true
+								},
+								{
+									"key": "newFormat",
+									"value": "Mpeg",
+									"description": "Formato al que desea convertir el archivo seleccionado. Formatos soportados mp4, webm, avi, mpeg, wmv. No es sensible a mayusculas y minusculas.",
+									"type": "text",
+									"disabled": true
+								}
+							]
+						},
+						"url": {
+							"raw": "http://localhost:5000/api/tasks",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5000",
+							"path": [
+								"api",
+								"tasks"
+							]
+						}
+					},
+					"status": "BAD REQUEST",
+					"code": 400,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						},
+						{
+							"key": "Content-Length",
+							"value": "136"
+						},
+						{
+							"key": "Server",
+							"value": "Werkzeug/2.0.1 Python/3.8.18"
+						},
+						{
+							"key": "Date",
+							"value": "Thu, 19 Oct 2023 20:40:15 GMT"
+						}
+					],
+					"cookie": [],
+					"body": "{\n    \"errors\": [\n        \"No se encontró ningún archivo en la solicitud.\",\n        \"El campo newFormat es obligatorio y no debe estar vacío.\"\n    ]\n}"
+				}
+			]
+		}
+	]
+}
