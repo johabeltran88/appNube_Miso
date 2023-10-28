@@ -7,7 +7,8 @@ class Commons:
     @staticmethod
     def init():
         app = Flask(__name__)
-        app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///../db/db.sqlite'
+        # app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///../db/db.sqlite'
+        app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://root:$^k6I7["/,\'T(7<5@35.230.32.21/file-converter'
         app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
         app.config['JWT_SECRET_KEY'] = 'frase-secreta'
         app.config['PROPAGATE_EXCEPTIONS'] = True
