@@ -1,0 +1,13 @@
+{
+  "type": "service_account",
+  "project_id": "miso-nube",
+  "private_key_id": "932084c5cff628ffe07b3d3a346c8f5c624977a8",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvAIBADANBgkqhkiG9w0BAQEFAASCBKYwggSiAgEAAoIBAQC1ILjfoxBkmPu0\nH7P9z1crENM4TByhIRgouOX7H/wqi4gp3EO/qraKeeBNoDM0UliWGhL30AmDxRf6\nL4pcybt/H0j0w7hPy3muAzoK58rbZ4DOOgXSQVk9zTWr6fvcg3+06Lp5X5xz0yKH\nlj299zVhJ3qrsSMDVl2MLpDSMLIvmbJVkYRj8sxMFlnCcMJ7AY19zyXYi5B2DkNE\nzJ95j3kNi8DLwWcaUd3x+5qWVDa/6PNIqXbEzjBhuUfOC2T4wTMosULTAioUKYHf\nABIBngZiUK5oW2Sqrs0GmI26+l1VKRqMRcSF2WaYbYoE/AV1W1HffMn819Q9vExS\ne8f7XlNBAgMBAAECgf8L1/U+v62Ku8DO/mOz7PgzhgjJsvBho4WuOVOQdX70/pAL\nbK5hZ2BC8xqKTjdgQczZGSC0Y5NmXQo8VG96XGvjhsAr1msZjKHgPFsclhuFooxM\nRS8BmJRP843W4piSyrvHBeYWRFI5S00EC1GY4llIiQmpwGNxtxasMT9MVIgnjzZn\nAqTISZ6rGT8745C3rmNm4FxYqlN7C8RzkV3A4qP1l8wwihr91ZY5lsR2HKLzQLvD\ntEEqmfPPEtdU2Vj0wJB3mTlv9yUuhREwke4VTTCoWqCjUXCVh2+FIjZsDcSzXcMV\nZ5pCwzBBdDb5PT5/aputAtirz0vTrEK3538cMKECgYEA4SPRzeoDZd6/wLYoZOmG\nSCa6MU+o/HnpdBNlHvSr1lBHKooR4bFl5/7aNcTUoqzOr3iTtzvkKiMw8DKU8r8i\n0SXT76yULO8daBdycvR+DRMYgXub4Wi2UNfQRztGmzR6DGO/xolIY2U8rtCPKTus\nRhNB4Zqa4IOKrhN41C9sryECgYEAzfSDlpmSlruPpfacCwPBVt4a+br8S/pG7iMy\niNPhRn0pt7Cpk0XXKwwAiNkUTdQd/NEy7aRJirkeBedAGH3ebfL+FFBKontBU0UO\nk/IqnBrFk8xJE6XaPAd9gldOtxFnJJcUHEWt/BKV1DAw0ZebRF+DsDrkZrnet6Um\n2rmjwCECgYBomgzTX+N+RBTRQ5DW+czC3wNo/7riuv2lSZGU5ValNx0pfYa7VoGj\nXTwi+TVV83X//sSawH/MuBb3sniTpAxYIfwrAgLCMcJ251XsZP3fszyShEyzWMRE\nIVEKl1bBq4r9EKc8ZfI1BAdCrXGmVaw/zpiwafWFVHhtUmy0IOidIQKBgQC6Gnzd\nlSAU/J8tRM50VYxbRo/xoblhnmKBxWRgp7Uk0Ozlg8l3vuBTkaDaB+6E9WuzjAYN\nHyslI2mxw+jzOKnJiI13JaaLc/zvlbM6lNVUAg0PJMXT70ZogAw1v1btrdgaBDqz\n4XL6GIEzH+i9O9WdzwFcOZsyCDrsj1uwwZbqgQKBgQCBL4Cx1liLEIEc3xzUFgl1\njiW7WPKW+s2FWwl8rli/vmS4BSQPfnfSI444zDGtJPZJhMqXeZSsKrfK1amb7iyF\n9cTKmMsIuFrIcXBV1QFFmEapXZfVoR0yNKBVww70UZBQewvIowEWpHCTaTwLxQrs\nIUtwHp54Ml9SsW2Tq2d4LA==\n-----END PRIVATE KEY-----\n",
+  "client_email": "miso-account@miso-nube.iam.gserviceaccount.com",
+  "client_id": "111297100023703149699",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/miso-account%40miso-nube.iam.gserviceaccount.com",
+  "universe_domain": "googleapis.com"
+}

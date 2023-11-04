@@ -11,10 +11,9 @@ services:
       - beat
       - --loglevel=info
     volumes:
-      - ./db:/app/db
       - ./files:/app/files
     depends_on:
-      - file-converter-service
+      - rabbit
   file-converter-worker:
     build: ./../appNube_Miso
     environment:
@@ -28,24 +27,19 @@ services:
       - -P
       - threads
     volumes:
-      - ./db:/app/db
       - ./files:/app/files
     depends_on:
-      - file-converter-service
+      - file-converter-beat
+      - rabbit
   file-converter-service:
     build: ./../appNube_Miso
-    environment:
-      - FILES_HOST=app
     command:
       - python
       - app.py
     volumes:
-      - ./db:/app/db
       - ./files:/app/files
     ports:
       - "5000:5000"
-    depends_on:
-      - rabbit
   rabbit:
     image: rabbitmq:3.7.5-management
     ports:

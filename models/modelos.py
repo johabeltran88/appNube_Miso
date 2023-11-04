@@ -22,6 +22,8 @@ class Task(db.Model):
     fileName = db.Column(db.String(128))
     newFormat = db.Column(db.String(10))
     status = db.Column(db.String(10))
+    original_file = db.Column(db.String(1000))
+    converted_file = db.Column(db.String(1000))
     timeStamp = db.Column(db.DateTime, default=datetime.utcnow)
     user_id = db.Column(db.Integer, db.ForeignKey('usuario.id'))
 
