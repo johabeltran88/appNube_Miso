@@ -3,6 +3,8 @@ import os
 from flask import Flask
 from models import db
 
+database_uti = os.environ.get("DATABASE_URI")
+
 
 class Commons:
 
@@ -10,7 +12,7 @@ class Commons:
     def init():
         app = Flask(__name__)
         os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = './miso-nube-credentials.json'
-        app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://root:})^M^JeM?H0+=e(-@35.233.184.37/file-converter'
+        app.config['SQLALCHEMY_DATABASE_URI'] = database_uti
         app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
         app.config['JWT_SECRET_KEY'] = 'frase-secreta'
         app.config['PROPAGATE_EXCEPTIONS'] = True

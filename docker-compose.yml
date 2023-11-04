@@ -3,6 +3,7 @@ services:
   file-converter-beat:
     build: ./../appNube_Miso
     environment:
+      - DATABASE_URI=mysql://root:})^M^JeM?H0+=e(-@35.233.184.37/file-converter
       - RABBIT_HOST=rabbit
     command:
       - celery
@@ -17,6 +18,7 @@ services:
   file-converter-worker:
     build: ./../appNube_Miso
     environment:
+      - DATABASE_URI=mysql://root:})^M^JeM?H0+=e(-@35.233.184.37/file-converter
       - RABBIT_HOST=rabbit
     command:
       - celery
@@ -33,6 +35,8 @@ services:
       - rabbit
   file-converter-service:
     build: ./../appNube_Miso
+    environment:
+      - DATABASE_URI=mysql://root:})^M^JeM?H0+=e(-@35.233.184.37/file-converter
     command:
       - python
       - app.py
