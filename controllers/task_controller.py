@@ -1,11 +1,10 @@
-import os
-
-from flask import Blueprint, request, jsonify, url_for, send_from_directory
+from flask import Blueprint, request, jsonify
 from flask_jwt_extended import jwt_required, get_jwt_identity
+from google.cloud import storage
 
 from commons.utils import Utils
 from commons.video_format_enum import VideoFormatEnum
-from models import db, Usuario, Task, TaskSchema
+from models import db, Task, TaskSchema
 
 task_schema = TaskSchema()
 
@@ -13,7 +12,7 @@ bluePrintTaskController = Blueprint('bluePrintTaskController', __name__)
 
 CONTROLLER_ROUTE = '/api/tasks'
 
-files_host = os.environ.get("FILES_HOST")
+BUCKET_NAME = "file-converter-bucket"
 
 
 @bluePrintTaskController.route(CONTROLLER_ROUTE, methods=['POST'])
@@ -34,13 +33,65 @@ def create_task():
         validate_extension_equals(file_extension, request.form.get('newFormat')))
     if len(errors) > 0:
         return {"errors": errors}, 400
-    task = Task(fileName=request.files['fileName'].filename, newFormat=request.form.get('newFormat').upper(),
-                status='uploaded', user_id=id_usuario)
+    task = Task(
+        fileName=request.files['fileName'].filename,
+        newFormat=request.form.get('newFormat').upper(),
+        status='uploaded',
+        user_id=id_usuario,
+        converted_file='pending'
+    )
     db.session.add(task)
     db.session.commit()
-    file = request.files['fileName']
-    file.save('./files/{}.{}'.format(task.id, file_extension))
+    task.original_file = upload_to_bucket(request.files['fileName'], task.id, file_extension)
+    db.session.add(task)
+    db.session.commit()
     return task_schema.dump(task), 201
+
+
+@bluePrintTaskController.route(CONTROLLER_ROUTE + '/<int:id>', methods=['GET'])
+@jwt_required()
+def get_task_by_id(id):
+    id_usuario = get_jwt_identity()
+    task = Task.query.filter(Task.id == id, Task.user_id == id_usuario).first()
+    if task is None:
+        return {"mensaje": "No existe una tarea con ese id asignado a su usuario"}, 422
+    else:
+        return jsonify(task_schema.dump(task))
+
+
+@bluePrintTaskController.route(CONTROLLER_ROUTE, methods=['GET'])
+@jwt_required()
+def get_tasks_for_user():
+    id_usuario = get_jwt_identity()
+    try:
+        tasks = Task.query.filter(Task.user_id == id_usuario).all()
+        return {"task": [task_schema.dump(task) for task in tasks]}, 200
+    except Exception as e:
+        return {"Ha sucedido un error al intentar obtener las tareas del usuario": str(e)}, 500
+
+
+@bluePrintTaskController.route(CONTROLLER_ROUTE + '/<int:id_task>', methods=['DELETE'])
+@jwt_required()
+def delete_tasks_for_user(id_task):
+    id_usuario = get_jwt_identity()
+    try:
+        # Retrieve the task by id_task and id_usuario
+        task = Task.query.filter(Task.id == id_task, Task.user_id == id_usuario).first()
+        if not task:
+            return {"mensaje": "La tarea no existe o no pertenece al usuario"}, 404
+    except Exception as e:
+        return {"Ha sucedido un error al intentar obtener la tarea del usuario": str(e)}, 500
+
+        # If task status is 'Disponible', delete the associated files
+    if task.status != 'processing':
+        delete_from_bucket(task.id, Utils.get_file_extension(task.fileName))
+        delete_from_bucket("{}_converted".format(task.id), task.newFormat)
+        db.session.delete(task)
+        db.session.commit()
+        return {"mensaje": "Tarea eliminada exitosamente"}, 200
+    else:
+        # If task status is not 'Disponible', return an error message
+        return {"mensaje": "La tarea no se puede eliminar porque está en proceso de conversión"}, 422
 
 
 def validate_blank(*fields):
@@ -77,81 +128,17 @@ def validate_extension_equals(file_extension, new_format):
     return None
 
 
-@bluePrintTaskController.route(CONTROLLER_ROUTE + '/<int:id>', methods=['GET'])
-@jwt_required()
-def get_task_by_id(id):
-    id_usuario = get_jwt_identity()
-    print(id_usuario)
-    task = Task.query.filter(Task.id == id, Task.user_id == id_usuario).first()
-    if task is None:
-        return {"mensaje": "No existe una tarea con ese id asignado a su usuario"}, 422
-    else:
-        resultado = task_schema.dump(task)
-        resultado['original_file'] = url_for('bluePrintTaskController.publish_file',
-                                             file_name=str(task.id) + "." + task.fileName.split(".")[1])
-        if (task.status == 'processed'):
-            resultado['converted_file'] = url_for('bluePrintTaskController.publish_file',
-                                                  file_name=str(task.id) + "_converted." + task.newFormat)
-        else:
-            resultado['converted_file'] = ''
-        return jsonify(resultado)
+def upload_to_bucket(file, file_name, file_extension):
+    client = storage.Client()
+    bucket = client.bucket(BUCKET_NAME)
+    blob = bucket.blob('{}.{}'.format(file_name, file_extension))
+    blob.upload_from_file(file, content_type=file.content_type)
+    return blob.public_url
 
 
-@bluePrintTaskController.route(CONTROLLER_ROUTE + '/files/<file_name>')
-def publish_file(file_name):
-    basedir = os.path.realpath(os.path.dirname(os.getcwd()))
-    host = 'localhost' if files_host is None else files_host
-    data_dir = os.path.join(basedir, host, 'files')
-    print(data_dir)
-    return send_from_directory(data_dir, file_name, as_attachment=True,cache_timeout=0)    
-
-
-@bluePrintTaskController.route(CONTROLLER_ROUTE, methods=['GET'])
-@jwt_required()
-def get_tasks_for_user():
-    id_usuario = get_jwt_identity()
-    try:
-        tasks = Task.query.filter(Task.user_id == id_usuario).all()
-        return {"task": [task_schema.dump(task) for task in tasks]}, 200
-    except Exception as e:
-        return {"Ha sucedido un error al intentar obtener las tareas del usuario": str(e)}, 500
-
-
-@bluePrintTaskController.route(CONTROLLER_ROUTE + '/<int:id_task>', methods=['DELETE'])
-@jwt_required()
-def delete_tasks_for_user(id_task):
-    id_usuario = get_jwt_identity()
-    try:
-        # Retrieve the task by id_task and id_usuario
-        task = Task.query.filter(Task.id == id_task, Task.user_id == id_usuario).first()
-        if not task:
-            return {"mensaje": "La tarea no existe o no pertenece al usuario"}, 404
-    except Exception as e:
-        return {"Ha sucedido un error al intentar obtener la tarea del usuario": str(e)}, 500
-
-        # If task status is 'Disponible', delete the associated files
-    if task.status != 'processing':
-        try:
-            # We get the original file location
-            original_file_path = os.path.join("./files",
-                                              "{}.{}".format(task.id, Utils.get_file_extension(task.fileName)))
-            converted_file_path = os.path.join("./files", "{}_converted.{}".format(task.id, task.newFormat))
-
-            # Attempt to remove the original file from local storage
-            if os.path.exists(original_file_path):
-                os.remove(original_file_path)
-
-            # Attempt to remove the converted file from local storage
-            if os.path.exists(converted_file_path):
-                os.remove(converted_file_path)
-        except Exception as e:
-            # If there's an error deleting either file, return an error message
-            return {"mensaje": "Error eliminando los archivos asociados a la tarea: {}".format(str(e))}, 500
-
-        # If both files were deleted successfully, remove the task from the database
-        db.session.delete(task)
-        db.session.commit()
-        return {"mensaje": "Tarea eliminada exitosamente"}, 200
-    else:
-        # If task status is not 'Disponible', return an error message
-        return {"mensaje": "La tarea no se puede eliminar porque está en proceso de conversión"}, 422
+def delete_from_bucket(file_name, file_extension):
+    client = storage.Client()
+    bucket = client.get_bucket(BUCKET_NAME)
+    blob = bucket.blob('{}.{}'.format(file_name, file_extension))
+    if blob.exists():
+        blob.delete()

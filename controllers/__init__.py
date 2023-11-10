@@ -1,1 +1,1 @@
-from .LoginController import *
+from .login_controller import *
