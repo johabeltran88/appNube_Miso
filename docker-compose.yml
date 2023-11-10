@@ -3,6 +3,7 @@ services:
   file-converter-beat:
     build: ./../appNube_Miso
     environment:
+      - DATABASE_URI=mysql://root:})^M^JeM?H0+=e(-@35.233.184.37/file-converter
       - RABBIT_HOST=rabbit
     command:
       - celery
@@ -11,13 +12,13 @@ services:
       - beat
       - --loglevel=info
     volumes:
-      - ./db:/app/db
       - ./files:/app/files
     depends_on:
-      - file-converter-service
+      - rabbit
   file-converter-worker:
     build: ./../appNube_Miso
     environment:
+      - DATABASE_URI=mysql://root:})^M^JeM?H0+=e(-@35.233.184.37/file-converter
       - RABBIT_HOST=rabbit
     command:
       - celery
@@ -28,24 +29,21 @@ services:
       - -P
       - threads
     volumes:
-      - ./db:/app/db
       - ./files:/app/files
     depends_on:
-      - file-converter-service
+      - file-converter-beat
+      - rabbit
   file-converter-service:
     build: ./../appNube_Miso
     environment:
-      - FILES_HOST=app
+      - DATABASE_URI=mysql://root:})^M^JeM?H0+=e(-@35.233.184.37/file-converter
     command:
       - python
       - app.py
     volumes:
-      - ./db:/app/db
       - ./files:/app/files
     ports:
       - "5000:5000"
-    depends_on:
-      - rabbit
   rabbit:
     image: rabbitmq:3.7.5-management
     ports:
