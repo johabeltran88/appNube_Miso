@@ -1,18 +1,22 @@
+import os
+import json
+
 from flask import Blueprint, request, jsonify
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from google.cloud import storage
+from google.cloud import pubsub_v1
 
 from commons.utils import Utils
 from commons.video_format_enum import VideoFormatEnum
 from models import db, Task, TaskSchema
+
+os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = './miso-nube-credentials.json'
 
 task_schema = TaskSchema()
 
 bluePrintTaskController = Blueprint('bluePrintTaskController', __name__)
 
 CONTROLLER_ROUTE = '/api/tasks'
-
-BUCKET_NAME = "file-converter-bucket"
 
 
 @bluePrintTaskController.route(CONTROLLER_ROUTE, methods=['POST'])
@@ -45,6 +49,7 @@ def create_task():
     task.original_file = upload_to_bucket(request.files['fileName'], task.id, file_extension)
     db.session.add(task)
     db.session.commit()
+    send_message(task)
     return task_schema.dump(task), 201
 
 
@@ -130,7 +135,7 @@ def validate_extension_equals(file_extension, new_format):
 
 def upload_to_bucket(file, file_name, file_extension):
     client = storage.Client()
-    bucket = client.bucket(BUCKET_NAME)
+    bucket = client.bucket(os.environ.get("GCP_BUCKET_NAME"))
     blob = bucket.blob('{}.{}'.format(file_name, file_extension))
     blob.upload_from_file(file, content_type=file.content_type)
     return blob.public_url
@@ -138,7 +143,14 @@ def upload_to_bucket(file, file_name, file_extension):
 
 def delete_from_bucket(file_name, file_extension):
     client = storage.Client()
-    bucket = client.get_bucket(BUCKET_NAME)
+    bucket = client.get_bucket(os.environ.get("GCP_BUCKET_NAME"))
     blob = bucket.blob('{}.{}'.format(file_name, file_extension))
     if blob.exists():
         blob.delete()
+
+
+def send_message(task):
+    publisher = pubsub_v1.PublisherClient()
+    topic_path = publisher.topic_path(os.environ.get("GCP_PROJECT_ID"), os.environ.get("GCP_TOPIC_NAME"))
+    message = json.dumps(task_schema.dump(task))
+    publisher.publish(topic_path, message.encode())
