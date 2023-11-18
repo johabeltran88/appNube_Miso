@@ -1,3 +1,4 @@
+import os
 from flask_cors import CORS
 from flask_jwt_extended import JWTManager
 from flask_restful import Api
@@ -6,6 +7,8 @@ from commons.commons import Commons
 from controllers.login_controller import bluePrintLoginController
 from controllers.healthcheck_controller import bluePrintHealthcheckController
 from controllers.task_controller import bluePrintTaskController
+
+os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = './miso-nube-credentials.json'
 
 app = Commons.init()
 
