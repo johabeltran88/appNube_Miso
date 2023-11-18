@@ -11,6 +11,4 @@ env/
 venv/
 ENV/
 env.bak/
-files/*
-!files/
 venv.bak/
